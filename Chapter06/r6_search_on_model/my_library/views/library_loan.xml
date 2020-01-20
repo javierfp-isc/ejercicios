@@ -20,12 +20,13 @@
                 </header>
                 <group>
                     <group>
-                        <field name="member_id"/>
                         <field name="book_id"/>
+                        <field name="member_id"/>                              
                     </group>
+                    <field name="member_image" widget="image" class="oe_avatar"/>
                     <group>                        
                         <field name="date_start"/>
-                        <field name="date_end"/>                        
+                        <field name="date_end"/>                                              
                     </group>
                 </group>
             </form>

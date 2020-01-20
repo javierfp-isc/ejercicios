@@ -29,13 +29,14 @@
                 <group>
                     <group>
                         <field name="name"/>
+                        <field name="book_image" widget="image" class="oe_avatar"/>
                         <field name="author_ids" widget="many2many_tags"/>
                     </group>
                     <group>
                         <field name="category_id"/>
                         <field name="date_release"/>
                         <field name="date_updated"/>
-                        <field name="is_lent"/>
+                        <field name="is_lent"/>                        
                     </group>
                 </group>
             </form>

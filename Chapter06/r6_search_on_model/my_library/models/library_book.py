@@ -28,6 +28,8 @@ class LibraryBook(models.Model):
     # Field que indica si un libro esta prestado
     is_lent = fields.Boolean('Lent', compute='check_lent')
 
+    book_image = fields.Binary('Portada')
+
     @api.multi
     def check_lent(self):
         for book in self:
@@ -128,3 +130,5 @@ class LibraryLoan(models.Model):
     book_id =  fields.Many2one('library.book', required=True)
     date_start = fields.Date('Loan Start')
     date_end = fields.Date('Loan End')
+
+    member_image = fields.Binary('Member Image', related='member_id.partner_id.image')
