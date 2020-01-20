@@ -24,6 +24,8 @@ class LibraryBook(models.Model):
         ('borrowed', 'Borrowed'),
         ('lost', 'Lost')],
         'State', default="draft")
+    #Añadido
+    member_id = fields.Many2one('library.member', string='Lector')
 
     @api.model
     def is_allowed_transition(self, old_state, new_state):
@@ -32,7 +34,9 @@ class LibraryBook(models.Model):
                    ('borrowed', 'available'),
                    ('available', 'lost'),
                    ('borrowed', 'lost'),
-                   ('lost', 'available')]
+                   ('lost', 'available'),
+                   #Añadido
+                   ('available', 'draft')]
         return (old_state, new_state) in allowed
 
     @api.multi
@@ -43,6 +47,9 @@ class LibraryBook(models.Model):
             else:
                 message = _('Moving from %s to %s is not allowd') % (book.state, new_state)
                 raise UserError(message)
+    #Añadido
+    def make_unavailable(self):
+        self.change_state('draft')
 
     def make_available(self):
         self.change_state('available')

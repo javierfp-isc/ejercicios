@@ -25,6 +25,15 @@ class LibraryBook(models.Model):
         ('lost', 'Lost')],
         'State', default="draft")
 
+    # Field que indica si un libro esta prestado
+    is_lent = fields.Boolean('Lent', compute='check_lent')
+
+    @api.multi
+    def check_lent(self):
+        for book in self:
+            domain = [('book_id.id', '=', book.id)]
+            book.is_lent = self.env['library.loan'].search(domain, count=True) > 0   
+
     @api.model
     def is_allowed_transition(self, old_state, new_state):
         allowed = [('draft', 'available'),
@@ -108,3 +117,14 @@ class LibraryMember(models.Model):
     date_end = fields.Date('Termination Date')
     member_number = fields.Char()
     date_of_birth = fields.Date('Date of birth')
+
+
+class LibraryLoan(models.Model):
+    _name = 'library.loan'
+    _description = 'Library Loan'
+    _rec_name = 'book_id'
+
+    member_id = fields.Many2one('library.member', required=True)
+    book_id =  fields.Many2one('library.book', required=True)
+    date_start = fields.Date('Loan Start')
+    date_end = fields.Date('Loan End')
