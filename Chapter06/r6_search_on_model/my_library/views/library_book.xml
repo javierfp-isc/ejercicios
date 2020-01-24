@@ -37,7 +37,10 @@
                         <field name="date_release"/>
                         <field name="date_updated"/>
                         <field name="is_lent"/>                        
-                    </group>
+                    </group>                    
+                </group>
+                <group>
+                    <field name="loan_ids"/> 
                 </group>
             </form>
         </field>

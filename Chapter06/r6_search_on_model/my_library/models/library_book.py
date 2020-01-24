@@ -5,6 +5,8 @@ from odoo import models, fields, api
 from odoo.exceptions import UserError
 from odoo.tools.translate import _
 
+from datetime import datetime, timedelta
+
 
 logger = logging.getLogger(__name__)
 
@@ -26,14 +28,17 @@ class LibraryBook(models.Model):
         'State', default="draft")
 
     # Field que indica si un libro esta prestado
-    is_lent = fields.Boolean('Lent', compute='check_lent')
+    is_lent = fields.Boolean('Lent', compute='check_lent', store=True)
+
+    # Prestamos asociados a un libro
+    loan_ids = fields.One2many('library.loan', inverse_name='book_id')
 
     book_image = fields.Binary('Portada')
 
     @api.multi
     def check_lent(self):
         for book in self:
-            domain = [('book_id.id', '=', book.id)]
+            domain = ['&',('book_id.id', '=', book.id), ('date_end', '>=', datetime.now())]
             book.is_lent = self.env['library.loan'].search(domain, count=True) > 0   
 
     @api.model
@@ -128,7 +133,19 @@ class LibraryLoan(models.Model):
 
     member_id = fields.Many2one('library.member', required=True)
     book_id =  fields.Many2one('library.book', required=True)
-    date_start = fields.Date('Loan Start')
-    date_end = fields.Date('Loan End')
+    date_start = fields.Date('Loan Start', default=lambda *a:datetime.now().strftime('%Y-%m-%d'))
+    date_end = fields.Date('Loan End', default=lambda *a:(datetime.now() + timedelta(days=(6))).strftime('%Y-%m-%d'))
 
     member_image = fields.Binary('Member Image', related='member_id.partner_id.image')
+
+    @api.constrains('book_id')
+    def _check_book_id(self):
+        for record in self:
+            if record.book_id.is_lent:
+                raise models.ValidationError('Book is Lent!')
+
+    @api.constrains('date_end', 'date_start')
+    def _check_dates(self):
+        for record in self:
+            if record.date_start > record.date_end:
+                raise models.ValidationError('Start date After end date!')
