@@ -28,18 +28,20 @@ class LibraryBook(models.Model):
         'State', default="draft")
 
     # Field que indica si un libro esta prestado
-    is_lent = fields.Boolean('Lent', compute='check_lent', store=True)
+    is_lent = fields.Boolean('Lent', compute='check_lent', default=False)
 
     # Prestamos asociados a un libro
     loan_ids = fields.One2many('library.loan', inverse_name='book_id')
 
     book_image = fields.Binary('Portada')
-
+    
+    #Comprueba si el libro esta prestado comprobando que hay un library.loan asociado y con date_end posterior a la actual
     @api.multi
     def check_lent(self):
         for book in self:
             domain = ['&',('book_id.id', '=', book.id), ('date_end', '>=', datetime.now())]
-            book.is_lent = self.env['library.loan'].search(domain, count=True) > 0   
+            book.is_lent = self.env['library.loan'].search(domain, count=True) > 0     
+            return book.is_lent           
 
     @api.model
     def is_allowed_transition(self, old_state, new_state):
@@ -130,6 +132,7 @@ class LibraryLoan(models.Model):
     _name = 'library.loan'
     _description = 'Library Loan'
     _rec_name = 'book_id'
+    _order = 'date_end desc'
 
     member_id = fields.Many2one('library.member', required=True)
     book_id =  fields.Many2one('library.book', required=True)
@@ -138,14 +141,20 @@ class LibraryLoan(models.Model):
 
     member_image = fields.Binary('Member Image', related='member_id.partner_id.image')
 
+    # Comprueba que un libro no este prestado
     @api.constrains('book_id')
     def _check_book_id(self):
-        for record in self:
-            if record.book_id.is_lent:
-                raise models.ValidationError('Book is Lent!')
+        for loan in self:
+            book = loan.book_id
+            domain = ['&',('book_id.id', '=', book.id), ('date_end', '>=', datetime.now())]
+            # Comprueba que hay más de 1 registro pues el record que se está creando también cuenta aunque no esté todavía en la BBDD
+            book.is_lent = self.search(domain, count=True) > 1 
+            if book.is_lent:
+                raise models.ValidationError('Book is Lent!') 
+                
 
     @api.constrains('date_end', 'date_start')
     def _check_dates(self):
-        for record in self:
-            if record.date_start > record.date_end:
+        for loan in self:
+            if loan.date_start > loan.date_end:
                 raise models.ValidationError('Start date After end date!')
