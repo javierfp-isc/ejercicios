@@ -5,7 +5,7 @@
         <field name="name">Library Books</field>
         <field name="res_model">library.book</field>
         <field name="view_type">form</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">kanban,tree,form</field>
     </record>
 
     <menuitem name="My Library" id="library_base_menu" />
@@ -68,6 +68,36 @@
                 <field name="author_ids"/>
                 <filter string="Without Authors" name="without_author" domain="[('author_ids','=',False)]"/>
             </search>
+        </field>
+    </record>
+
+    <!-- Kanban View -->  
+    <record id="library_book_view_kanban" model="ir.ui.view">
+        <field name="name">Library Book Kanban</field>
+        <field name="model">library.book</field>
+        <field name="arch" type="xml">            
+            <kanban default_group_by="state">
+                <field name="id" />
+                <field name="state" />
+                <field name="book_image" />
+                <field name="name" />
+                <field name="is_lent" />               
+                <templates>
+                    <t t-name="kanban-box">                    
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <field name="name" />
+                            <t t-if="record.book_image.raw_value">                                    
+                                    <div class="o_kanban_image_fill_left d-none d-md-block">
+                                        <img class="o_kanban_image_inner_pic" style="max-height: 100px;max-width: 100px" t-att-alt="record.id.value" t-att-src="kanban_image('library.book', 'book_image', record.id.raw_value)"/>
+                                    </div>
+                            </t>
+                            <t t-if="record.is_lent.raw_value">
+                                Book is Lent!
+                            </t>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>        
         </field>
     </record>
 
