@@ -47,11 +47,11 @@ class LibraryBook(models.Model):
 
     @api.multi
     def get_last_loan_end(self):
-        self.ensure_one()
-        if self.is_lent:
-            for loan in self.loan_ids:            
-                self.last_loan_end = loan.date_end
-                return
+        for book in self:
+            if book.is_lent:
+                for loan in book.loan_ids:            
+                    book.last_loan_end = loan.date_end
+                    return
         
     @api.model
     def is_allowed_transition(self, old_state, new_state):
