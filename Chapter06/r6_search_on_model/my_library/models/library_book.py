@@ -34,6 +34,8 @@ class LibraryBook(models.Model):
     loan_ids = fields.One2many('library.loan', inverse_name='book_id')
 
     book_image = fields.Binary('Portada')
+
+    last_loan_end = fields.Date('Fecha Final Reserva', compute='get_last_loan_end', store=False)
     
     #Comprueba si el libro esta prestado comprobando que hay un library.loan asociado y con date_end posterior a la actual
     @api.multi
@@ -41,8 +43,16 @@ class LibraryBook(models.Model):
         for book in self:
             domain = ['&',('book_id.id', '=', book.id), ('date_end', '>=', datetime.now())]
             book.is_lent = self.env['library.loan'].search(domain, count=True) > 0     
-            return book.is_lent           
+            return book.is_lent
 
+    @api.multi
+    def get_last_loan_end(self):
+        self.ensure_one()
+        if self.is_lent:
+            for loan in self.loan_ids:            
+                self.last_loan_end = loan.date_end
+                return
+        
     @api.model
     def is_allowed_transition(self, old_state, new_state):
         allowed = [('draft', 'available'),

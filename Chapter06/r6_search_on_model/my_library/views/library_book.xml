@@ -36,7 +36,8 @@
                         <field name="category_id"/>
                         <field name="date_release"/>
                         <field name="date_updated"/>
-                        <field name="is_lent"/>                        
+                        <field name="is_lent"/>
+                        <field name="last_loan_end" />                      
                     </group>                    
                 </group>
                 <group>
@@ -81,7 +82,8 @@
                 <field name="state" />
                 <field name="book_image" />
                 <field name="name" />
-                <field name="is_lent" />               
+                <field name="is_lent" />
+                <field name="last_loan_end" />               
                 <templates>
                     <t t-name="kanban-box">                    
                         <div class="oe_kanban_card oe_kanban_global_click">
@@ -92,8 +94,9 @@
                                     </div>
                             </t>
                             <t t-if="record.is_lent.raw_value">
-                                Book is Lent!
-                            </t>
+                                Book is Lent! until:
+                                <field name="last_loan_end" />
+                            </t>                            
                         </div>
                     </t>
                 </templates>
