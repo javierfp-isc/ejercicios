@@ -4,7 +4,7 @@
         <field name="name">Library Loans</field>
         <field name="res_model">library.loan</field>
         <field name="view_type">form</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">tree,form,calendar</field>
     </record>
 
     <menuitem name="Book Loans" id="library_loan_menu" parent="library_base_menu" action="library_loan_action"/>
@@ -44,6 +44,18 @@
                 <field name="date_start"/>
                 <field name="date_end"/>
             </tree>
+        </field>
+    </record>
+
+    <!-- Calendar View -->  
+    <record id="library_loan_view_calendar" model="ir.ui.view">
+        <field name="name">Library Loan Calendar</field>
+        <field name="model">library.loan</field>
+        <field name="arch" type="xml">            
+            <calendar string="Lents" date_start="date_start" date_stop="date_end" mode="week" color="book_id" form_view_id="library_loan_view_form">
+                <field name="book_id" />
+                <field name="member_id" />                
+            </calendar>        
         </field>
     </record>
 </odoo>
