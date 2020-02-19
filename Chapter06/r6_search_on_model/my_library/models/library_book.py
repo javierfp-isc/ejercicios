@@ -34,8 +34,6 @@ class LibraryBook(models.Model):
     loan_ids = fields.One2many('library.loan', inverse_name='book_id')
 
     book_image = fields.Binary('Portada')
-
-    last_loan_end = fields.Date('Fecha Final Reserva', compute='get_last_loan_end', store=False)
     
     #Comprueba si el libro esta prestado comprobando que hay un library.loan asociado y con date_end posterior a la actual
     @api.multi
@@ -43,16 +41,8 @@ class LibraryBook(models.Model):
         for book in self:
             domain = ['&',('book_id.id', '=', book.id), ('date_end', '>=', datetime.now())]
             book.is_lent = self.env['library.loan'].search(domain, count=True) > 0     
-            return book.is_lent
+        return           
 
-    @api.multi
-    def get_last_loan_end(self):
-        for book in self:
-            if book.is_lent:
-                for loan in book.loan_ids:            
-                    book.last_loan_end = loan.date_end
-                    return
-        
     @api.model
     def is_allowed_transition(self, old_state, new_state):
         allowed = [('draft', 'available'),
@@ -116,7 +106,7 @@ class LibraryBook(models.Model):
                 '&', ('name', 'ilike', 'Book Name 2'),
                      ('category_id.name', '=', 'Category Name 2')
         ]
-        books = self.search(domain)
+        books = self.search(domain)https://www.odoo.com/documentation/12.0/reference/orm.html
         logger.info('Books found: %s', books)
         return True
 
