@@ -40,8 +40,7 @@ class LibraryBook(models.Model):
     def check_lent(self):
         for book in self:
             domain = ['&',('book_id.id', '=', book.id), ('date_end', '>=', datetime.now())]
-            book.is_lent = self.env['library.loan'].search(domain, count=True) > 0     
-            return book.is_lent           
+            book.is_lent = self.env['library.loan'].search(domain, count=True) > 0         
 
     @api.model
     def is_allowed_transition(self, old_state, new_state):
